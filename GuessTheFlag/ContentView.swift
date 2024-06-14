@@ -26,6 +26,11 @@ struct ContentView: View {
     @State private var userScore = 0
     @State private var restartGame = false
     @State private var numberOfQuestions = 1
+    //The challenge
+    @State private var isCorrect = false
+    @State private var selectedNumber = 0
+    @State private var isFadeOutOpacity = false
+    @State private var isDiferenttEffect = false
     
     var body: some View {
         ZStack {
@@ -52,13 +57,19 @@ struct ContentView: View {
                     
                     ForEach(0..<3) { number in
                         Button {
-                            flagTapped(number)
+                            withAnimation {
+                                flagTapped(number)
+                            }
+                           
                         } label: {
                             FlagImage(image: countries[number])
-                            
-//                            Image(countries[number])
-//                                .clipShape(.capsule)
-//                                .shadow(radius: 5)
+                            //CHALLENGE 1.When you tap a flag, make it spin around 360 degrees on the Y axis.
+                                .rotation3DEffect(.degrees(isCorrect && selectedNumber == number ? 360 : 0),axis: (x: 0, y: 1, z: 0))
+                            //CHALLENGE 2.Make the other two buttons fade out to 25% opacity.
+                                .opacity(isFadeOutOpacity && selectedNumber != number ? 0.25 : 1)
+                            //CHALLENGE 3.Add a third effect of your choosing to the two flags the user didn’t choose – maybe make them scale down? Or flip in a different direction? Experiment!
+                                .scaleEffect(isDiferenttEffect && selectedNumber != number ? 0.8 : 1)
+
                         }
                     }
                 }
@@ -83,9 +94,14 @@ struct ContentView: View {
     }
     
     func flagTapped(_ number: Int) {
+        selectedNumber = number
+        
         if number == correctAnswer {
             scoreTitle = "Correct"
             userScore += 1
+            isCorrect = true
+            isFadeOutOpacity = true
+            isDiferenttEffect = true
             
             
         } else {
@@ -106,6 +122,9 @@ struct ContentView: View {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
         numberOfQuestions += 1
+        isCorrect = false
+        isDiferenttEffect = false
+        isFadeOutOpacity = false
         
     }
     // 3.Make the game show only 8 questions, at which point they see a final alert judging their score and can restart the game.
